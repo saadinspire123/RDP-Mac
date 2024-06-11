@@ -15,30 +15,14 @@ jobs:
       run: ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Install Homebrew
-      run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    - name: Add Homebrew to PATH
-      shell: bash
+    - name: Enable Screen Sharing
       run: |
-        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $HOME/.bash_profile
-        source $HOME/.bash_profile
-        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $HOME/.zprofile
-        source $HOME/.zprofile
-    - name: Install VNC server
-      shell: bash
+        sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -access -on -privs -all -restart -agent -menu
+        sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -configure -users runner -access -on -privs -all
+    - name: Set VNC password
       run: |
-        eval "$(/usr/local/bin/brew shellenv)"
-        brew install tiger-vnc
-    - name: Verify Installation
-      shell: bash
-      run: which vncpasswd
-    - name: Start VNC server
-      shell: bash
-      run: |
-        eval "$(/usr/local/bin/brew shellenv)"
-        mkdir -p ~/.vnc
-        echo "P@ssw0rd!" | vncpasswd -f > ~/.vnc/passwd
-        chmod 600 ~/.vnc/passwd
-        vncserver :1 -geometry 1280x800 -depth 24
-    - name: Create Tunnel (expose port 5901 for VNC)
-      run: ./ngrok tcp 5901
+        echo "P@ssw0rd!" | sudo tee /Library/Preferences/com.apple.VNCSettings.txt
+        sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -configure -clientopts -setvnclegacy -vnclegacy yes
+        sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -configure -clientopts -setvncpw -vncpw P@ssw0rd!
+    - name: Create Tunnel (expose port 5900 for VNC)
+      run: ./ngrok tcp 5900
