@@ -19,12 +19,19 @@ jobs:
       run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     - name: Add Homebrew to PATH
       shell: bash
-      run: echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $HOME/.bash_profile
+      run: |
+        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $HOME/.bash_profile
+        source $HOME/.bash_profile
+        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $HOME/.zprofile
+        source $HOME/.zprofile
     - name: Install VNC server
       shell: bash
       run: |
         eval "$(/usr/local/bin/brew shellenv)"
         brew install tiger-vnc
+    - name: Verify Installation
+      shell: bash
+      run: which vncpasswd
     - name: Start VNC server
       shell: bash
       run: |
