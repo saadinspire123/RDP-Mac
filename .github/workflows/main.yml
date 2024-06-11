@@ -1,0 +1,30 @@
+name: Cl
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: macos-12
+
+    steps:
+    - name: Download ngrok
+      run: curl -fsSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-darwin-amd64.zip -o ngrok.zip
+    - name: Extract ngrok
+      run: unzip ngrok.zip
+    - name: Auth (using encrypted secret)
+      run: ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Install Homebrew
+      run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    - name: Install VNC server
+      run: |
+        brew install tigervnc
+    - name: Start VNC server
+      run: |
+        mkdir -p ~/.vnc
+        echo "P@ssw0rd!" | vncpasswd -f > ~/.vnc/passwd
+        chmod 600 ~/.vnc/passwd
+        vncserver :1 -geometry 1280x800 -depth 24
+    - name: Create Tunnel (expose port 5901 for VNC)
+      run: ./ngrok tcp 5901
