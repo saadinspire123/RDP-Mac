@@ -19,7 +19,7 @@ jobs:
       run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     - name: Install VNC server
       run: |
-        brew install tigervnc
+        brew install tiger-vnc
     - name: Start VNC server
       run: |
         mkdir -p ~/.vnc
