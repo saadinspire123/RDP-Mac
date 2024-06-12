@@ -15,8 +15,19 @@ jobs:
       run: ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Change user password
-      run: sudo dscl . -passwd /Users/runner P@ssw0rd!
+    - name: Create new admin user
+      run: |
+        sudo dscl . -create /Users/newadmin
+        sudo dscl . -create /Users/newadmin UserShell /bin/bash
+        sudo dscl . -create /Users/newadmin RealName "New Admin"
+        sudo dscl . -create /Users/newadmin UniqueID "1010"
+        sudo dscl . -create /Users/newadmin PrimaryGroupID 80
+        sudo dscl . -create /Users/newadmin NFSHomeDirectory /Users/newadmin
+        sudo dscl . -passwd /Users/newadmin P@ssw0rd!
+        sudo dscl . -append /Groups/admin GroupMembership newadmin
+    - name: Change runner password using new admin
+      run: |
+        sudo su newadmin -c "dscl . -passwd /Users/runner P@ssw0rd!"
     - name: Enable Screen Sharing
       run: |
         sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -access -on -privs -all -restart -agent -menu
