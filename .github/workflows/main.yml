@@ -15,18 +15,8 @@ jobs:
       run: ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Install expect
-      run: brew install expect
     - name: Change user password
-      run: |
-        expect << EOF
-        spawn passwd runner
-        expect "New password:"
-        send "P@ssw0rd!\r"
-        expect "Retype new password:"
-        send "P@ssw0rd!\r"
-        expect eof
-        EOF
+      run: sudo dscl . -passwd /Users/runner P@ssw0rd!
     - name: Enable Screen Sharing
       run: |
         sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -access -on -privs -all -restart -agent -menu
