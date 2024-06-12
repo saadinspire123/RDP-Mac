@@ -25,9 +25,12 @@ jobs:
         sudo dscl . -create /Users/newadmin NFSHomeDirectory /Users/newadmin
         sudo dscl . -passwd /Users/newadmin P@ssw0rd!
         sudo dscl . -append /Groups/admin GroupMembership newadmin
-    - name: Change runner password using dscl
+    - name: Change runner password using pwpolicy
       run: |
-        sudo dscl . -passwd /Users/runner P@ssw0rd!
+        sudo dscl . -passwd /Users/newadmin P@ssw0rd!
+        sudo dscl . -merge /Users/runner authentication_authority ";ShadowHash;"
+        sudo dscl . -merge /Users/runner passwd "XXXXXXXXXXXX"
+        sudo pwpolicy -u runner -setpolicy "newPassword=P@ssw0rd! minChars=8 requiresMixedCase=1 requiresAlpha=1 requiresNumeric=1"
     - name: Enable Screen Sharing
       run: |
         sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -activate -configure -access -on -privs -all -restart -agent -menu
